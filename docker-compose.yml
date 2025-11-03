@@ -1,22 +1,42 @@
+# my-pet-project/docker-compose.yml (The file for your Git repo)
 version: '3.8'
 
 services:
-  backend:
-    build:
-      context: ./go-backend
-      dockerfile: Dockerfile
-    container_name: go-api-server
-    ports:
-      - "8080:8080"
+  # --- FRONTEND ---
+  # This is the container that your main proxy will talk to.
+  # Your proxy's config correctly uses the name 'frontend-app'.
+  frontend:
+    # The CI/CD pipeline will pre-build this image and push it to the registry.
+    image: ghcr.io/magnacartaam/chain-solutions/frontend:latest
+    container_name: frontend-app
+    restart: unless-stopped
     networks:
-      - local-app-network
+      - shared-network # Connects to the proxy's network
 
+  # --- BACKEND API GATEWAY ---
+  # This is the container that your main proxy will talk to.
+  # Your proxy's config correctly uses the name 'go-api-gateway'.
+  backend:
+    image: ghcr.io/magnacartaam/chain-solutions/go-app:latest
+    container_name: go-api-gateway
+    restart: unless-stopped
+    networks:
+      - shared-network # Connects to the proxy's network
+    # You can pass environment variables from the server to your app here if needed
+    # environment:
+    #   - DATABASE_URL=${DATABASE_URL}
+
+  # --- OTHER SERVICES ---
+  # These are internal services. The proxy doesn't need to know about them.
   redis:
     image: redis:alpine
-    container_name: redis-local
+    container_name: app-redis
+    restart: unless-stopped
     networks:
-      - local-app-network
+      - shared-network
 
 networks:
-  local-app-network:
-    driver: bridge
+  # This tells Docker Compose: "Connect to a network that already exists
+  # on the server, created by the main-proxy stack."
+  shared-network:
+    external: true

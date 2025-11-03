@@ -1,0 +1,88 @@
+# .github/workflows/deploy.yml
+
+name: Build, Push, and Deploy
+
+# Trigger this workflow on every push to the 'main' branch
+on:
+  push:
+    branches: [ "master" ]
+
+env:
+  # Use GitHub Container Registry
+  REGISTRY: ghcr.io
+  # Use your repository name as the image namespace for clarity
+  # This will result in images like: ghcr.io/your-username/my-pet-project/frontend
+  IMAGE_NAMESPACE: ${{ github.repository }}
+
+jobs:
+  build-and-push:
+    name: Build and Push Images
+    runs-on: ubuntu-latest
+
+    # Grant permissions for the GITHUB_TOKEN to write to packages
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # --- Build and Push Frontend Image ---
+      - name: Build and push Frontend image
+        uses: docker/build-push-action@v4
+        with:
+          context: ./frontend # Build using the Dockerfile in ./frontend
+          push: true
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAMESPACE }}/frontend:latest
+
+      # --- Build and Push Go Backend Image ---
+      - name: Build and push Go Backend image
+        uses: docker/build-push-action@v4
+        with:
+          context: ./go-backend # Build using the Dockerfile in ./go-backend
+          push: true
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAMESPACE }}/go-app:latest # Use go-app to match our compose file
+
+  deploy:
+    name: Deploy to Production VPS
+    # This job will only run after the build-and-push job succeeds
+    needs: build-and-push
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy to VPS via SSH
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          key: ${{ secrets.VPS_SSH_PRIVATE_KEY }}
+          script: |
+            # --- This script runs ON YOUR VPS ---
+            
+            # Navigate to the project directory where your docker-compose.yml lives
+            cd ~/chain-solutions
+
+            # Update the repository to get the latest docker-compose.yml file, if it changed
+            git pull
+
+            # Log in to GHCR using a temporary token.
+            # This allows the server to pull your private images.
+            echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+            # Pull the new images you just pushed from the build step
+            docker compose pull
+
+            # Start the application stack with the new images.
+            # Docker Compose is smart and will only recreate the containers for images that changed.
+            docker compose up -d
+
+            # (Optional but Recommended) Clean up old, unused Docker images to save disk space
+            docker image prune -af

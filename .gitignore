@@ -1,6 +1,8 @@
 go-backend/main
+go-backend/vendor
 go-backend/.idea
 
 frontend/node_modules/
 frontend/dist/
 frontend/.astro/
+frontend/.vscode
