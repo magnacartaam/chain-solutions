@@ -70,6 +70,8 @@ jobs:
           username: ${{ secrets.VPS_USERNAME }}
           key: ${{ secrets.VPS_SSH_PRIVATE_KEY }}
           script: |
+            set -e
+
             # --- This script runs ON YOUR VPS ---
             
             # Navigate to the project directory where your docker-compose.yml lives
