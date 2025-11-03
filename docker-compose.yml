@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./go-backend
+      dockerfile: Dockerfile
+    container_name: go-api-server
+    ports:
+      - "8080:8080"
+    networks:
+      - local-app-network
+
+  redis:
+    image: redis:alpine
+    container_name: redis-local
+    networks:
+      - local-app-network
+
+networks:
+  local-app-network:
+    driver: bridge

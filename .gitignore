@@ -1,0 +1,6 @@
+go-backend/main
+go-backend/.idea
+
+frontend/node_modules/
+frontend/dist/
+frontend/.astro/
