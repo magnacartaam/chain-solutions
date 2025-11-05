@@ -18,6 +18,8 @@ CMD [ "pnpm", "run", "dev", "--", "--host" ]
 
 
 FROM base AS prod-builder
+ARG PUBLIC_API_URL
+ENV PUBLIC_API_URL=$PUBLIC_API_URL
 COPY . .
 RUN pnpm run build
 
