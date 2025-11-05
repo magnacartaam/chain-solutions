@@ -6,5 +6,6 @@ func RegisterRoutes(router *gin.Engine) {
 	apiGroup := router.Group("/api")
 	{
 		apiGroup.POST("/cipher", CipherHandler)
+		apiGroup.POST("/decipher", DecipherHandler)
 	}
 }

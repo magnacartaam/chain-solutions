@@ -1,0 +1,44 @@
+---
+import Sidebar from '../components/Sidebar.astro';
+
+const { title } = Astro.props;
+---
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>{title} | magnacartaam </title>
+
+    <style is:global>
+        @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;700&display=swap');
+        :root {
+            --bg-color: #1a1a1a;
+            --text-color: #e0e0e0;
+            --accent-color: #00ff9d;
+            --border-color: #444;
+            --input-bg: #2a2a2a;
+            --sidebar-width: 250px;
+        }
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Fira Code', monospace;
+            margin: 0;
+            display: flex;
+        }
+        main {
+            padding: 2rem;
+            width: calc(100% - var(--sidebar-width));
+        }
+        .prompt::before { content: '> '; color: var(--accent-color); }
+        h1 { color: var(--accent-color); font-weight: 700; }
+        h1::before { content: 'magnacartaam@il-al-kl:~$ '; color: var(--text-color); }
+    </style>
+</head>
+<body>
+<Sidebar />
+<main>
+    <slot />
+</main>
+</body>
+</html>

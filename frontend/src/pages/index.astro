@@ -1,191 +1,26 @@
 ---
-// /frontend/src/pages/index.astro
-// This is the "server" part of an Astro component.
-// It runs when the page is built, not in the browser.
-// We can define variables and import components here.
-const pageTitle = "STB-34.101.31 Cipher";
+import MainLayout from '../layouts/MainLayout.astro';
 ---
+<MainLayout title="Home">
+    <h1>cd ./home</h1>
+    <p class="prompt">Welcome to my project space.</p>
 
-<html lang="en">
-<head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width" />
-    <title>{pageTitle}</title>
+    <div class="gallery">
+        <img src="/photos/beemer.jpg" alt="Description of photo 1">
+        <img src="/photos/leha.jpg" alt="Description of photo 2">
+    </div>
+</MainLayout>
 
-    <style is:global>
-        /* A simple CSS reset and font import */
-        @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;700&display=swap');
-
-        :root {
-            --bg-color: #1a1a1a;
-            --text-color: #e0e0e0;
-            --accent-color: #00ff9d;
-            --border-color: #444;
-            --input-bg: #2a2a2a;
-        }
-
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            font-family: 'Fira Code', monospace;
-            margin: 0;
-            padding: 2rem;
-            display: flex;
-            justify-content: center;
-        }
-
-        main {
-            width: 100%;
-            max-width: 800px;
-        }
-
-        /* Terminal-style elements */
-        h1 {
-            color: var(--accent-color);
-            font-weight: 700;
-        }
-
-        h1::before {
-            content: 'user@pet-project:~$ ';
-            color: var(--text-color);
-        }
-
-        .prompt::before {
-            content: '> ';
-            color: var(--accent-color);
-        }
-
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 0.5rem;
-        }
-
-        input, textarea {
-            background-color: var(--input-bg);
-            border: 1px solid var(--border-color);
-            color: var(--text-color);
-            font-family: inherit;
-            padding: 0.75rem;
-            width: 100%;
-            box-sizing: border-box;
-            border-radius: 4px;
-            outline: none;
-        }
-
-        input:focus, textarea:focus {
-            border-color: var(--accent-color);
-        }
-
-        button {
-            background-color: var(--accent-color);
-            border: none;
-            color: var(--bg-color);
-            padding: 0.75rem 1.5rem;
-            font-family: inherit;
-            font-weight: 700;
-            cursor: pointer;
-            margin-top: 1rem;
-        }
-
-        #result-container {
-            margin-top: 2rem;
-            background-color: var(--input-bg);
-            border: 1px solid var(--border-color);
-            padding: 1.5rem;
-            display: none; /* Hidden by default */
-            white-space: pre-wrap;
-            word-wrap: break-word;
-        }
-
-        #result-container h2 {
-            margin-top: 0;
-        }
-    </style>
-</head>
-<body>
-    <main>
-        <h1>{pageTitle}</h1>
-
-        <form id="cipher-form">
-            <div class="form-group">
-                <label for="plaintext" class="prompt">Enter Plaintext:</label>
-                <textarea id="plaintext" rows="4" required>This is a secret message.</textarea>
-            </div>
-
-            <div class="form-group">
-                <label for="key" class="prompt">Enter 32-byte Key:</label>
-                <input type="text" id="key" value="12345678901234567890123456789012" required maxlength="32" minlength="32">
-            </div>
-
-            <div class="form-group">
-                <label for="iv" class="prompt">Enter 16-byte IV:</label>
-                <input type="text" id="iv" value="InitVector123456" required maxlength="16" minlength="16">
-            </div>
-
-            <button type="submit">Encrypt_Text.sh</button>
-        </form>
-
-        <div id="result-container">
-            <h2 class="prompt">API Response:</h2>
-            <pre id="api-response"></pre>
-        </div>
-    </main>
-
-    <script>
-        // This is client-side JavaScript that runs in the browser.
-        const apiUrl = "https://api.magnacartaam.me/api";
-        const form = document.getElementById('cipher-form');
-        const resultContainer = document.getElementById('result-container');
-        const apiResponseElement = document.getElementById('api-response');
-
-        form.addEventListener('submit', async (event) => {
-            event.preventDefault(); // Prevent the default form submission
-
-            // Get values from the form
-            const plaintext = (document.getElementById('plaintext') as HTMLTextAreaElement).value;
-            const key = (document.getElementById('key') as HTMLInputElement).value;
-            const iv = (document.getElementById('iv') as HTMLInputElement).value;
-
-            // Prepare the JSON payload for our Go API
-            const payload = {
-                plaintext,
-                key,
-                iv
-            };
-
-            try {
-                // The API call!
-                // We use a relative path here. In production, this will resolve to
-                // https://my-project.com/api/cipher
-                const response = await fetch(`${apiUrl}/cipher`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(payload)
-                });
-
-                const data = await response.json();
-
-                if (!response.ok) {
-                    // If the server returns an error (like 400 or 500), throw it
-                    throw new Error(data.error || 'An unknown error occurred');
-                }
-
-                // Display the results
-                apiResponseElement.textContent = JSON.stringify(data, null, 2);
-                resultContainer.style.display = 'block';
-
-            } catch (error) {
-                // Display any errors
-                apiResponseElement.textContent = `Error: ${error.message}`;
-                resultContainer.style.display = 'block';
-            }
-        });
-    </script>
-</body>
-</html>
+<style>
+    .gallery {
+        margin-top: 2rem;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1rem;
+    }
+    .gallery img {
+        width: 100%;
+        height: auto;
+        border: 1px solid var(--border-color);
+    }
+</style>

@@ -1,4 +1,4 @@
-module github.com/magnacartaam/chain-solutions/go-backend
+module github.com/magnacartaam/chain-solutions/services/go-api
 
 go 1.25.3
 

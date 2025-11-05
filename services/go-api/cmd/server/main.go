@@ -1,9 +1,8 @@
 package main
 
 import (
-	"github.com/magnacartaam/chain-solutions/go-backend/internal/api"
-
 	"github.com/gin-gonic/gin"
+	"github.com/magnacartaam/chain-solutions/services/go-api/internal/api"
 )
 
 func main() {

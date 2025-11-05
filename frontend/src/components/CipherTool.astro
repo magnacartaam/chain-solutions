@@ -1,0 +1,131 @@
+---
+---
+<div class="tool-container">
+    <form id="cipher-form">
+        <div class="form-group">
+            <label for="text-input" class="prompt">Enter Text (Plaintext for Encrypt, Hex for Decrypt):</label>
+            <textarea id="text-input" rows="4" required>This is a secret message.</textarea>
+        </div>
+        <div class="form-group">
+            <label for="key" class="prompt">Enter 32-byte Key:</label>
+            <input type="text" id="key" value="12345678901234567890123456789012" required maxlength="32" minlength="32">
+        </div>
+        <div class="form-group">
+            <label for="iv" class="prompt">Enter 16-byte IV:</label>
+            <input type="text" id="iv" value="InitVector123456" required maxlength="16" minlength="16">
+        </div>
+
+        <div class="button-group">
+            <button type="submit" id="encrypt-btn">Encrypt_Text.sh</button>
+            <button type="submit" id="decrypt-btn">Decrypt_Text.sh</button>
+        </div>
+    </form>
+
+    <div id="result-container">
+        <h2 class="prompt">API Response:</h2>
+        <pre id="api-response"></pre>
+    </div>
+</div>
+
+<style>
+    .tool-container { margin-top: 2rem; }
+    .form-group { margin-bottom: 1.5rem; }
+    label { display: block; margin-bottom: 0.5rem; }
+    input, textarea { background-color: var(--input-bg); border: 1px solid var(--border-color); color: var(--text-color); font-family: inherit; padding: 0.75rem; width: 100%; box-sizing: border-box; border-radius: 4px; outline: none; }
+    input:focus, textarea:focus { border-color: var(--accent-color); }
+    .button-group { display: flex; gap: 1rem; }
+    button { background-color: var(--accent-color); border: none; color: var(--bg-color); padding: 0.75rem 1.5rem; font-family: inherit; font-weight: 700; cursor: pointer; }
+
+    #result-container {
+        margin-top: 2rem;
+        background-color: var(--input-bg);
+        border: 1px solid var(--border-color);
+        padding: 1.5rem;
+        display: none;
+    }
+
+    #api-response {
+        white-space: pre-wrap;
+        word-break: break-all;
+        word-wrap: break-word;
+        max-width: 100%;
+    }
+
+    #result-container h2 {
+        margin-top: 0;
+    }
+</style>
+
+<script>
+    const apiUrl = import.meta.env.PUBLIC_API_URL;
+
+    const form = document.getElementById('cipher-form') as HTMLFormElement;
+    const textInput = document.getElementById('text-input') as HTMLTextAreaElement;
+    const keyInput = document.getElementById('key') as HTMLInputElement;
+    const ivInput = document.getElementById('iv') as HTMLInputElement;
+    const encryptBtn = document.getElementById('encrypt-btn');
+    const decryptBtn = document.getElementById('decrypt-btn');
+    const resultContainer = document.getElementById('result-container');
+    const apiResponseElement = document.getElementById('api-response');
+
+    async function handleApiCall(endpoint: string, payload: object) {
+        try {
+            const response = await fetch(`${apiUrl}/${endpoint}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            const data = await response.json();
+            if (!response.ok) {
+                throw new Error(data.error || 'An unknown error occurred');
+            }
+            apiResponseElement.textContent = JSON.stringify(data, null, 2);
+        } catch (error) {
+            apiResponseElement.textContent = `Error: ${error.message}`;
+        } finally {
+            resultContainer.style.display = 'block';
+        }
+    }
+
+    encryptBtn?.addEventListener('click', (e) => {
+        e.preventDefault();
+        const payload = {
+            plaintext: textInput.value,
+            key: keyInput.value,
+            iv: ivInput.value,
+        };
+        handleApiCall('cipher', payload);
+    });
+
+    decryptBtn?.addEventListener('click', (e) => {
+        e.preventDefault();
+
+        let ecbB64 = '';
+        let cfbB64 = '';
+
+        try {
+            const encryptedData = JSON.parse(textInput.value);
+
+            ecbB64 = encryptedData.ecb_ciphertext_b64;
+            cfbB64 = encryptedData.cfb_ciphertext_b64;
+
+            if (!ecbB64 || !cfbB64) {
+                throw new Error("Input JSON is missing 'ecb_ciphertext_b64' or 'cfb_ciphertext_b64' fields.");
+            }
+
+        } catch (error) {
+            apiResponseElement.textContent = `Error: Invalid input. Please paste the full JSON output from the encrypt step. Details: ${error.message}`;
+            resultContainer.style.display = 'block';
+            return;
+        }
+
+        const payload = {
+            ecb_ciphertext_b64: ecbB64,
+            cfb_ciphertext_b64: cfbB64,
+            key: keyInput.value,
+            iv: ivInput.value,
+        };
+
+        handleApiCall('decipher', payload);
+    });
+</script>
