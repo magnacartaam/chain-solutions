@@ -61,8 +61,6 @@ jobs:
             set -e
             cd ~/chain-solutions
             git pull
-            unset DOCKER_CONFIG
-            echo ${{ secrets.GHCR_PULL_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
             
             docker compose -f docker-compose.yml pull
             docker compose -f docker-compose.yml up -d --remove-orphans
