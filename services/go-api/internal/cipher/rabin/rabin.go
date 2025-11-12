@@ -6,13 +6,13 @@ import (
 	"math/big"
 )
 
-type RabinKeys struct {
+type Keys struct {
 	N *big.Int
 	P *big.Int
 	Q *big.Int
 }
 
-func GenerateRabinKeys(bits int) (*RabinKeys, error) {
+func GenerateRabinKeys(bits int) (*Keys, error) {
 	p, err := generateBlumPrime(bits / 2)
 	if err != nil {
 		return nil, fmt.Errorf("failed to generate prime p: %v", err)
@@ -25,7 +25,7 @@ func GenerateRabinKeys(bits int) (*RabinKeys, error) {
 
 	n := new(big.Int).Mul(p, q)
 
-	return &RabinKeys{
+	return &Keys{
 		N: n,
 		P: p,
 		Q: q,
@@ -54,7 +54,7 @@ func Encrypt(message *big.Int, publicKey *big.Int) *big.Int {
 	return cipher
 }
 
-func Decrypt(cipher *big.Int, keys *RabinKeys) []*big.Int {
+func Decrypt(cipher *big.Int, keys *Keys) []*big.Int {
 	yp, yq := extendedGCD(keys.P, keys.Q)
 
 	mp := modularSqrt(cipher, keys.P)
@@ -97,24 +97,4 @@ func modularSqrt(a, p *big.Int) *big.Int {
 	exp := new(big.Int).Add(p, big.NewInt(1))
 	exp.Div(exp, big.NewInt(4))
 	return new(big.Int).Exp(a, exp, p)
-}
-
-func isValidText(data []byte) bool {
-	if len(data) == 0 {
-		return false
-	}
-	validCount := 0
-	for _, b := range data {
-		if (b >= 32 && b <= 126) || b == '\n' || b == '\r' || b == '\t' {
-			validCount++
-		}
-	}
-	return float64(validCount)/float64(len(data)) >= 0.8
-}
-
-func min(a, b int) int {
-	if a < b {
-		return a
-	}
-	return b
 }

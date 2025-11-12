@@ -43,7 +43,7 @@ func CipherHandler(c *gin.Context) {
 		return
 	}
 
-	ecbResult, cfbResult, err := stb_service.service.ProcessCipherRequest(
+	ecbResult, cfbResult, err := stb_service.ProcessCipherRequest(
 		[]byte(request.PlainText),
 		[]byte(request.Key),
 		[]byte(request.IV),
@@ -72,7 +72,7 @@ func DecipherHandler(c *gin.Context) {
 		return
 	}
 
-	ecbDecrypted, cfbDecrypted, err := stb_service.service.ProcessDecipherRequest(
+	ecbDecrypted, cfbDecrypted, err := stb_service.ProcessDecipherRequest(
 		request.EcbCiphertextB64,
 		request.CfbCiphertextB64,
 		[]byte(request.Key),

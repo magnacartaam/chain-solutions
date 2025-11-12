@@ -1,0 +1,127 @@
+---
+---
+<div class="tool-container">
+    <div class="key-generation">
+        <button id="keygen-btn">Generate_Keys.sh</button>
+        <div id="keys-container">
+            <h3 class="prompt">Generated Keys:</h3>
+            <pre id="keys-output"></pre>
+        </div>
+    </div>
+
+    <form id="rabin-form">
+        <div class="form-group">
+            <label for="rabin-text" class="prompt">Enter Plaintext:</label>
+            <textarea id="rabin-text" rows="4" required>Hello, Rabin!</textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="rabin-n" class="prompt">Public Key (N):</label>
+            <textarea id="rabin-n" rows="4" required></textarea>
+        </div>
+        <div class="form-group private-keys">
+            <label for="rabin-p" class="prompt">Private Key (P):</label>
+            <textarea id="rabin-p" rows="4" required></textarea>
+        </div>
+        <div class="form-group private-keys">
+            <label for="rabin-q" class="prompt">Private Key (Q):</label>
+            <textarea id="rabin-q" rows="4" required></textarea>
+        </div>
+
+        <div class="button-group">
+            <button type="submit" id="rabin-encrypt-btn">Encrypt_Text.sh</button>
+            <button type="submit" id="rabin-decrypt-btn">Decrypt_Text.sh</button>
+        </div>
+    </form>
+
+    <div id="rabin-result-container">
+        <h2 class="prompt">API Response:</h2>
+        <pre id="rabin-api-response"></pre>
+    </div>
+</div>
+
+<style>
+    .tool-container { margin-top: 2rem; }
+    .form-group { margin-bottom: 1.5rem; }
+    label { display: block; margin-bottom: 0.5rem; }
+    input, textarea { background-color: var(--input-bg); border: 1px solid var(--border-color); color: var(--text-color); font-family: inherit; padding: 0.75rem; width: 100%; box-sizing: border-box; border-radius: 4px; outline: none; }
+    .button-group { display: flex; gap: 1rem; }
+    button { background-color: var(--accent-color); border: none; color: var(--bg-color); padding: 0.75rem 1.5rem; font-family: inherit; font-weight: 700; cursor: pointer; }
+    #rabin-result-container, #keys-container { margin-top: 2rem; background-color: var(--input-bg); border: 1px solid var(--border-color); padding: 1.5rem; display: none; white-space: pre-wrap; word-break: break-all; }
+    .key-generation { border-bottom: 1px solid var(--border-color); padding-bottom: 2rem; margin-bottom: 2rem; }
+</style>
+
+<script>
+    const apiUrl = import.meta.env.PUBLIC_API_URL;
+
+    const keygenBtn = document.getElementById('keygen-btn');
+    const keysContainer = document.getElementById('keys-container');
+    const keysOutput = document.getElementById('keys-output');
+
+    const textInput = document.getElementById('rabin-text') as HTMLTextAreaElement;
+    const nInput = document.getElementById('rabin-n') as HTMLTextAreaElement;
+    const pInput = document.getElementById('rabin-p') as HTMLTextAreaElement;
+    const qInput = document.getElementById('rabin-q') as HTMLTextAreaElement;
+
+    const encryptBtn = document.getElementById('rabin-encrypt-btn');
+    const decryptBtn = document.getElementById('rabin-decrypt-btn');
+    const resultContainer = document.getElementById('rabin-result-container');
+    const apiResponse = document.getElementById('rabin-api-response');
+
+    async function handleApiCall(endpoint: string, method: string, payload?: object) {
+        try {
+            const options = {
+                method,
+                headers: { 'Content-Type': 'application/json' },
+                body: payload ? JSON.stringify(payload) : undefined
+            };
+            const response = await fetch(`${apiUrl}/${endpoint}`, options);
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.error || 'API call failed');
+            return data;
+        } catch (error) {
+            apiResponse.textContent = `Error: ${error.message}`;
+            resultContainer.style.display = 'block';
+        }
+    }
+
+    keygenBtn?.addEventListener('click', async () => {
+        const data = await handleApiCall('rabin/keygen', 'GET');
+        if (data) {
+            keysOutput.textContent = JSON.stringify(data, null, 2);
+            keysContainer.style.display = 'block';
+            nInput.value = data.public_key_n;
+            pInput.value = data.private_key_p;
+            qInput.value = data.private_key_q;
+        }
+    });
+
+    encryptBtn?.addEventListener('click', async (e) => {
+        e.preventDefault();
+        const payload = {
+            plaintext: textInput.value,
+            public_key_n: nInput.value,
+        };
+        const data = await handleApiCall('rabin/encrypt', 'POST', payload);
+        if (data) {
+            apiResponse.textContent = JSON.stringify(data, null, 2);
+            resultContainer.style.display = 'block';
+            textInput.value = data.ciphertext_b64;
+        }
+    });
+
+    decryptBtn?.addEventListener('click', async (e) => {
+        e.preventDefault();
+        const payload = {
+            ciphertext_b64: textInput.value,
+            public_key_n: nInput.value,
+            private_key_p: pInput.value,
+            private_key_q: qInput.value,
+        };
+        const data = await handleApiCall('rabin/decrypt', 'POST', payload);
+        if (data) {
+            apiResponse.textContent = JSON.stringify(data, null, 2);
+            resultContainer.style.display = 'block';
+        }
+    });
+</script>

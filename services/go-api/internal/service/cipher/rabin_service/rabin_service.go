@@ -33,7 +33,7 @@ func ProcessRabinDecrypt(cipherTextB64 string, nStr, pStr, qStr string) ([]strin
 	}
 	cipherInt := new(big.Int).SetBytes(cipherBytes)
 
-	keys := &rabin.RabinKeys{}
+	keys := &rabin.Keys{}
 	keys.N, _ = new(big.Int).SetString(nStr, 10)
 	keys.P, _ = new(big.Int).SetString(pStr, 10)
 	keys.Q, _ = new(big.Int).SetString(qStr, 10)

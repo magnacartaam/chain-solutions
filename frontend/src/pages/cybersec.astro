@@ -1,10 +1,67 @@
 ---
 import MainLayout from '../layouts/MainLayout.astro';
 import CipherTool from '../components/CipherTool.astro';
+import RabinTool from '../components/RabinTool.astro';
 ---
 <MainLayout title="CyberSec Tools">
     <h1>cd ./cybersec</h1>
-    <p class="prompt">STB-34.101.31 Cipher Tool</p>
 
-    <CipherTool />
+    <div class="tabs">
+        <button class="tab-button active" data-tab="stb">STB-34.101.31</button>
+        <button class="tab-button" data-tab="rabin">Rabin Cipher</button>
+    </div>
+
+    <div id="stb" class="tab-content active">
+        <p class="prompt">STB-34.101.31 Symmetric Cipher Tool</p>
+        <CipherTool />
+    </div>
+
+    <div id="rabin" class="tab-content">
+        <p class="prompt">Rabin Asymmetric Cipher Tool</p>
+        <RabinTool />
+    </div>
+
 </MainLayout>
+
+<style>
+    .tabs {
+        border-bottom: 1px solid var(--border-color);
+        margin-bottom: 1rem;
+    }
+    .tab-button {
+        background: none;
+        border: none;
+        color: var(--text-color);
+        padding: 1rem 1.5rem;
+        font-family: inherit;
+        cursor: pointer;
+        font-size: 1rem;
+    }
+    .tab-button.active {
+        color: var(--accent-color);
+        border-bottom: 2px solid var(--accent-color);
+    }
+    .tab-content {
+        display: none;
+    }
+    .tab-content.active {
+        display: block;
+    }
+</style>
+
+<script>
+    const tabButtons = document.querySelectorAll('.tab-button');
+    const tabContents = document.querySelectorAll('.tab-content');
+
+    tabButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const tabId = button.getAttribute('data-tab');
+
+            tabButtons.forEach(btn => btn.classList.remove('active'));
+            tabContents.forEach(content => content.classList.remove('active'));
+
+            button.classList.add('active');
+            document.getElementById(tabId).classList.add('active');
+        });
+    });
+</script>

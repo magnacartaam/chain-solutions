@@ -94,7 +94,7 @@
             key: keyInput.value,
             iv: ivInput.value,
         };
-        handleApiCall('cipher', payload);
+        handleApiCall('stb/cipher', payload);
     });
 
     decryptBtn?.addEventListener('click', (e) => {
@@ -126,6 +126,6 @@
             iv: ivInput.value,
         };
 
-        handleApiCall('decipher', payload);
+        handleApiCall('stb/decipher', payload);
     });
 </script>

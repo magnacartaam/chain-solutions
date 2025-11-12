@@ -9,7 +9,7 @@ import (
 )
 
 func ProcessCipherRequest(plainText, key, iv []byte) ([]byte, []byte, error) {
-	stb, err := stb.cipher.New(key)
+	stbStruct, err := stb.New(key)
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to initialize cipher: %w", err)
 	}
@@ -21,12 +21,12 @@ func ProcessCipherRequest(plainText, key, iv []byte) ([]byte, []byte, error) {
 
 	go func() {
 		defer wg.Done()
-		ecbResult = stb.EncryptECB(plainText)
+		ecbResult = stbStruct.EncryptECB(plainText)
 	}()
 
 	go func() {
 		defer wg.Done()
-		cfbResult = stb.EncryptCFB(plainText, iv)
+		cfbResult = stbStruct.EncryptCFB(plainText, iv)
 	}()
 
 	wg.Wait()
@@ -35,7 +35,7 @@ func ProcessCipherRequest(plainText, key, iv []byte) ([]byte, []byte, error) {
 }
 
 func ProcessDecipherRequest(ecbCiphertextB64, cfbCiphertextB64 string, key, iv []byte) (string, string, error) {
-	stb, err := stb.cipher.New(key)
+	stbStruct, err := stb.New(key)
 	if err != nil {
 		return "", "", fmt.Errorf("failed to initialize cipher: %w", err)
 	}
@@ -56,12 +56,12 @@ func ProcessDecipherRequest(ecbCiphertextB64, cfbCiphertextB64 string, key, iv [
 
 	go func() {
 		defer wg.Done()
-		ecbDecrypted, ecbErr = stb.DecryptECB(ecbCipherBytes)
+		ecbDecrypted, ecbErr = stbStruct.DecryptECB(ecbCipherBytes)
 	}()
 
 	go func() {
 		defer wg.Done()
-		cfbDecrypted = stb.DecryptCFB(cfbCipherBytes, iv)
+		cfbDecrypted = stbStruct.DecryptCFB(cfbCipherBytes, iv)
 	}()
 
 	wg.Wait()
