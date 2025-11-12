@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"math/big"
 
-	"github.com/magnacartaam/chain-solutions/services/go-api/internal/cipher"
+	"github.com/magnacartaam/chain-solutions/services/go-api/internal/cipher/rabin"
 )
 
 func ProcessRabinEncrypt(plainText string, nStr string) (string, error) {
@@ -21,7 +21,7 @@ func ProcessRabinEncrypt(plainText string, nStr string) (string, error) {
 		return "", fmt.Errorf("plaintext is too long for the given key size")
 	}
 
-	cipherInt := cipher.Encrypt(message, publicKeyN)
+	cipherInt := rabin.Encrypt(message, publicKeyN)
 
 	return base64.StdEncoding.EncodeToString(cipherInt.Bytes()), nil
 }
@@ -33,7 +33,7 @@ func ProcessRabinDecrypt(cipherTextB64 string, nStr, pStr, qStr string) ([]strin
 	}
 	cipherInt := new(big.Int).SetBytes(cipherBytes)
 
-	keys := &cipher.RabinKeys{}
+	keys := &rabin.RabinKeys{}
 	keys.N, _ = new(big.Int).SetString(nStr, 10)
 	keys.P, _ = new(big.Int).SetString(pStr, 10)
 	keys.Q, _ = new(big.Int).SetString(qStr, 10)
@@ -42,7 +42,7 @@ func ProcessRabinDecrypt(cipherTextB64 string, nStr, pStr, qStr string) ([]strin
 		return nil, fmt.Errorf("invalid key format")
 	}
 
-	candidates := cipher.Decrypt(cipherInt, keys)
+	candidates := rabin.Decrypt(cipherInt, keys)
 
 	results := make([]string, 4)
 	for i, c := range candidates {

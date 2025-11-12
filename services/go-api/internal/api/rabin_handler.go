@@ -5,7 +5,7 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	"github.com/magnacartaam/chain-solutions/services/go-api/internal/cipher"
+	"github.com/magnacartaam/chain-solutions/services/go-api/internal/cipher/rabin"
 	service "github.com/magnacartaam/chain-solutions/services/go-api/internal/service/cipher/rabin_service"
 )
 
