@@ -1,15 +1,15 @@
-package service
+package stb_service
 
 import (
 	"encoding/base64"
 	"fmt"
 	"sync"
 
-	"github.com/magnacartaam/chain-solutions/services/go-api/internal/ciphers"
+	"github.com/magnacartaam/chain-solutions/services/go-api/internal/cipher/stb/stb"
 )
 
 func ProcessCipherRequest(plainText, key, iv []byte) ([]byte, []byte, error) {
-	stb, err := cipher.New(key)
+	stb, err := stb.cipher.New(key)
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to initialize cipher: %w", err)
 	}
@@ -35,7 +35,7 @@ func ProcessCipherRequest(plainText, key, iv []byte) ([]byte, []byte, error) {
 }
 
 func ProcessDecipherRequest(ecbCiphertextB64, cfbCiphertextB64 string, key, iv []byte) (string, string, error) {
-	stb, err := cipher.New(key)
+	stb, err := stb.cipher.New(key)
 	if err != nil {
 		return "", "", fmt.Errorf("failed to initialize cipher: %w", err)
 	}

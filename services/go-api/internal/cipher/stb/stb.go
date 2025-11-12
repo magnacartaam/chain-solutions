@@ -1,5 +1,5 @@
 // Package cipher STB 34.101.31-2011
-package cipher
+package stb
 
 import (
 	"encoding/binary"

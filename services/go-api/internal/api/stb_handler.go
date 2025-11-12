@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/magnacartaam/chain-solutions/services/go-api/internal/service/cipher"
+	"github.com/magnacartaam/chain-solutions/services/go-api/internal/service/cipher/stb_service"
 )
 
 type EncryptRequest struct {
@@ -43,7 +43,7 @@ func CipherHandler(c *gin.Context) {
 		return
 	}
 
-	ecbResult, cfbResult, err := service.ProcessCipherRequest(
+	ecbResult, cfbResult, err := stb_service.service.ProcessCipherRequest(
 		[]byte(request.PlainText),
 		[]byte(request.Key),
 		[]byte(request.IV),
@@ -72,7 +72,7 @@ func DecipherHandler(c *gin.Context) {
 		return
 	}
 
-	ecbDecrypted, cfbDecrypted, err := service.ProcessDecipherRequest(
+	ecbDecrypted, cfbDecrypted, err := stb_service.service.ProcessDecipherRequest(
 		request.EcbCiphertextB64,
 		request.CfbCiphertextB64,
 		[]byte(request.Key),
