@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/magnacartaam/chain-solutions/services/go-api/internal/cipher/stb/stb"
+	"github.com/magnacartaam/chain-solutions/services/go-api/internal/cipher"
 )
 
 func ProcessCipherRequest(plainText, key, iv []byte) ([]byte, []byte, error) {

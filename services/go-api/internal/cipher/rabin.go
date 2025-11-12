@@ -1,4 +1,4 @@
-package rabin
+package cipher
 
 import (
 	"crypto/rand"
