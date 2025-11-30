@@ -17,5 +17,12 @@ func RegisterRoutes(router *gin.Engine) {
 			rabinGroup.POST("/encrypt", RabinEncryptHandler)
 			rabinGroup.POST("/decrypt", RabinDecryptHandler)
 		}
+
+		mcElieceGroup := apiGroup.Group("/mceliece")
+		{
+			mcElieceGroup.GET("/keygen", McElieceKeygenHandler)
+			mcElieceGroup.POST("/encrypt", McElieceEncryptHandler)
+			mcElieceGroup.POST("/decrypt", McElieceDecryptHandler)
+		}
 	}
 }
