@@ -38,7 +38,7 @@ jobs:
           push: true
           tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAMESPACE }}/frontend:latest
           build-args: |
-            PUBLIC_API_URL=https://api.magnacartaam.me/api
+            PUBLIC_API_URL=https://api.magnacartaam.me/api/v1
 
       - name: Build and push Go API image
         uses: docker/build-push-action@v4

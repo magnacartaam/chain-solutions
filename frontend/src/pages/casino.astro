@@ -1,0 +1,19 @@
+---
+import MainLayout from '../layouts/MainLayout.astro';
+import CasinoApp from '../components/Casino/CasinoApp.jsx';
+---
+
+<MainLayout title="VibeCasino">
+    <h1>./run_casino.exe</h1>
+    <p class="prompt">Initializing provably fair gambling protocol...</p>
+
+    <div class="casino-container">
+        <CasinoApp client:only="react" />
+    </div>
+</MainLayout>
+
+<style>
+    .casino-container {
+        margin-top: 2rem;
+    }
+</style>

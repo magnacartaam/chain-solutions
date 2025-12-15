@@ -3,8 +3,9 @@
 <aside>
     <div class="header">magnacartaam.me</div>
     <nav>
-        <a href="/" class="prompt">Home</a>
-        <a href="/cybersec" class="prompt">CyberSec</a>
+        <a href="/" class="prompt">/home</a>
+        <a href="/cybersec" class="prompt">/cyber-sec</a>
+        <a href="/casino" class={`prompt ${Astro.url.pathname === '/casino' ? 'active' : ''}`}>/casino</a>
     </nav>
 </aside>
 
@@ -34,6 +35,9 @@
         margin-bottom: 0.5rem;
     }
     nav a:hover {
+        color: var(--accent-color);
+    }
+    a.active {
         color: var(--accent-color);
     }
 </style>

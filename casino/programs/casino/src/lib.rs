@@ -80,6 +80,18 @@ pub mod casino {
         batch_commit.merkle_root = merkle_root;
         Ok(())
     }
+
+    pub fn update_signing_authority(ctx: Context<UpdateAuthority>, new_signing_authority: [u8; 32]) -> Result<()> {
+        require_keys_eq!(
+            ctx.accounts.authority.key(),
+            ctx.accounts.casino_vault.operational_authority,
+            MyError::Unauthorized
+        );
+
+        ctx.accounts.casino_vault.signing_authority = new_signing_authority;
+        msg!("Signing authority updated successfully.");
+        Ok(())
+    }
 }
 
 #[account]
@@ -167,6 +179,17 @@ pub struct Withdraw<'info> {
     pub instructions: UncheckedAccount<'info>,
 
     pub system_program: Program<'info, System>,
+}
+
+#[derive(Accounts)]
+pub struct UpdateAuthority<'info> {
+    #[account(
+        mut,
+        seeds = [b"casino_vault"],
+        bump
+    )]
+    pub casino_vault: Account<'info, CasinoVault>,
+    pub authority: Signer<'info>,
 }
 
 #[derive(Accounts)]

@@ -1,6 +1,7 @@
-package api
+package handlers
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -32,8 +33,8 @@ type McElieceEncryptResponse struct {
 }
 
 type McElieceDecryptRequest struct {
-	CipherTextB64 string                 `json:"ciphertext_b64" binding:"required"`
-	PrivateKey    McEliecePrivateKeyJSON `json:"private_key" binding:"required"`
+	CipherText string                 `json:"ciphertext" binding:"required"`
+	PrivateKey McEliecePrivateKeyJSON `json:"private_key" binding:"required"`
 }
 
 type McElieceDecryptResponse struct {
@@ -43,9 +44,9 @@ type McElieceDecryptResponse struct {
 // --- Handlers ---
 
 func McElieceKeygenHandler(c *gin.Context) {
-	n, _ := strconv.Atoi(c.DefaultQuery("n", "7"))
-	k, _ := strconv.Atoi(c.DefaultQuery("k", "4"))
-	t, _ := strconv.Atoi(c.DefaultQuery("t", "1"))
+	n, _ := strconv.Atoi(c.DefaultQuery("n", "32"))
+	k, _ := strconv.Atoi(c.DefaultQuery("k", "16"))
+	t, _ := strconv.Atoi(c.DefaultQuery("t", "2"))
 
 	params := mceliece.Parameters{N: n, K: k, T: t}
 
@@ -68,6 +69,10 @@ func McElieceEncryptHandler(c *gin.Context) {
 		return
 	}
 
+	fmt.Printf("\n--- McEliece Encrypt ---\n")
+	fmt.Printf("[HANDLER] Received PlainText: %q\n", req.PlainText)
+	fmt.Printf("[HANDLER] Received Public Key N (start): %.30s...\n", req.PublicKey)
+
 	pubKey := &mceliece.PublicKey{
 		G:      req.PublicKey.G,
 		T:      req.PublicKey.T,
@@ -80,6 +85,7 @@ func McElieceEncryptHandler(c *gin.Context) {
 		return
 	}
 
+	fmt.Printf("[HANDLER] Sending CipherTextB64: %s\n", cipherTextB64)
 	c.JSON(http.StatusOK, McElieceEncryptResponse{CipherTextB64: cipherTextB64})
 }
 
@@ -97,7 +103,7 @@ func McElieceDecryptHandler(c *gin.Context) {
 		Params: req.PrivateKey.Params,
 	}
 
-	decryptedText, err := mceliece_service.ProcessMcElieceDecrypt(req.CipherTextB64, privKey)
+	decryptedText, err := mceliece_service.ProcessMcElieceDecrypt(req.CipherText, privKey)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return

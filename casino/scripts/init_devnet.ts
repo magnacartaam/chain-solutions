@@ -4,7 +4,7 @@ import { Casino } from "../target/types/casino";
 import { PublicKey, Keypair, Connection, LAMPORTS_PER_SOL } from "@solana/web3.js";
 import fs from "fs";
 
-const AUTHORITY_HASH = [60,162,232,94,124,58,115,29,36,26,80,238,73,104,166,114,201,188,223,83,236,253,51,93,234,65,51,232,41,120,135,114,139,24,85,105,84,71,239,183,160,190,15,75,23,116,213,159,215,101,155,235,3,189,150,193,234,32,87,61,109,27,152,129];
+const AUTHORITY_HASH = [71,70,169,68,3,165,105,169,209,169,103,111,242,65,36,227,16,191,74,83,140,55,115,251,151,137,231,174,145,225,11,142];
 
 async function main() {
     const connection = new Connection("https://api.devnet.solana.com", "confirmed");

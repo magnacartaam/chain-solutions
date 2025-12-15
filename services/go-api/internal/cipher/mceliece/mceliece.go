@@ -3,6 +3,7 @@ package mceliece
 import (
 	"crypto/rand"
 	"errors"
+	"fmt"
 	"math/big"
 )
 
@@ -66,17 +67,51 @@ func Encrypt(message []byte, pubKey *PublicKey) ([]byte, error) {
 	k := pubKey.Params.K
 	n := pubKey.Params.N
 
-	M := bytesToBinaryVector(message, k)
-	if len(M) != k {
-		return nil, errors.New("message length must match k parameter")
+	fmt.Printf("[CORE] Encrypt called. Desired message bit length (k) = %d\n", k)
+	fmt.Printf("[CORE] Input message bytes: %v (%q)\n", message, string(message))
+
+	if len(message)*8 > k {
+		return nil, fmt.Errorf("message length (%d bytes) is too long for k=%d bits", len(message), k)
 	}
+
+	requiredBytes := (k + 7) / 8
+	paddedMessage := make([]byte, requiredBytes)
+	copy(paddedMessage, message)
+	fmt.Printf("[CORE] Padded message bytes for conversion: %v\n", paddedMessage)
+
+	M := bytesToBinaryVector(paddedMessage, k)
+
+	isMAllZeros := true
+	for _, bit := range M {
+		if bit != 0 {
+			isMAllZeros = false
+			break
+		}
+	}
+	fmt.Printf("[CORE] Converted message vector M (is all zeros? %t): %v\n", isMAllZeros, M)
 
 	Z := generateErrorVector(n, pubKey.T)
 
 	MG := vectorMatrixMultiply(M, pubKey.G)
+
+	fmt.Printf("[CORE] Result of M*G (is all zeros? %t): %v\n", isVectorAllZeros(MG), MG)
+
 	C := addVectors(MG, Z)
 
-	return binaryVectorToBytes(C), nil
+	fmt.Printf("[CORE] Final cipher vector C (M*G + Z): %v\n", C)
+
+	finalBytes := binaryVectorToBytes(C)
+	fmt.Printf("[CORE] Final cipher bytes: %v\n", finalBytes)
+	return finalBytes, nil
+}
+
+func isVectorAllZeros(vector []int) bool {
+	for _, bit := range vector {
+		if bit != 0 {
+			return false
+		}
+	}
+	return true
 }
 
 func Decrypt(ciphertext []byte, privKey *PrivateKey) ([]byte, error) {
@@ -321,28 +356,35 @@ func hammingDistance(a, b []int) int {
 	return dist
 }
 
-func bytesToBinaryVector(data []byte, length int) []int {
-	vector := make([]int, length)
-	for i := 0; i < length && i/8 < len(data); i++ {
-		byteIdx := i / 8
-		bitIdx := uint(i % 8)
-		if data[byteIdx]&(1<<bitIdx) != 0 {
-			vector[i] = 1
+func bytesToBinaryVector(data []byte, k int) []int {
+	vector := make([]int, k)
+
+	for i := 0; i < k; i++ {
+		byteIndex := i / 8
+		bitIndex := uint(7 - (i % 8))
+
+		if byteIndex < len(data) {
+			if (data[byteIndex]>>bitIndex)&1 == 1 {
+				vector[i] = 1
+			}
 		}
 	}
 	return vector
 }
 
 func binaryVectorToBytes(vector []int) []byte {
-	byteLen := (len(vector) + 7) / 8
-	data := make([]byte, byteLen)
+	numBytes := (len(vector) + 7) / 8
+	data := make([]byte, numBytes)
 
-	for i, bit := range vector {
-		if bit == 1 {
-			byteIdx := i / 8
-			bitIdx := uint(i % 8)
-			data[byteIdx] |= 1 << bitIdx
+	for i := 0; i < numBytes; i++ {
+		var currentByte byte = 0
+		for j := 0; j < 8; j++ {
+			bitIndex := i*8 + j
+			if bitIndex < len(vector) && vector[bitIndex] == 1 {
+				currentByte |= 1 << uint(7-j)
+			}
 		}
+		data[i] = currentByte
 	}
 	return data
 }
